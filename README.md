@@ -104,10 +104,83 @@ new Page("Player options", teleport).addToInstanceManager();
 ```
 You can see the third argument of the function click which is an Object array. We could pass any Information in it but here we will pass the Player selected in the first Inventory(wich is not implemented yet). So in the if statement we validate the Information and check if we can work with it. If everything is ok, we get the Player who was selected in the first Inventory: "clicked". After that we Teleport ourselves to that Player.
 
-Now lets see how we Implement the first Layer.
+Now lets see how we Implement the first Layer. But first we need three helper Functions to resize the Inventory when it is already open and to get the Player heads. This is necessary to fit all Player heads perfectly but you could also just open the Inventory on its maximum size. I will not explain these functions, because they do not have very much to do with this API.
 ```java
-ffffff
+private static Containers<?> getContainerType(int slots) {
+  int neededRows = slots / 9;
+    if (slots % 9 != 0) {
+      neededRows = ((int) slots / 9) + 1;
+    }
+    switch (neededRows) {
+      case 1:
+        return Containers.GENERIC_9X1;
+      case 2:
+        return Containers.GENERIC_9X2;
+      case 3:
+        return Containers.GENERIC_9X3;
+      case 4:
+        return Containers.GENERIC_9X4;
+      case 5:
+        return Containers.GENERIC_9X5;
+      case 6:
+        return Containers.GENERIC_9X6;
+      default:
+        System.err.println("Failed to get Containers Type for " + neededRows + " rows.");
+        return null;
+        }
+    }
+
+public static void risizeToFitAllItems(Player p, int numberOfItems) {
+  EntityPlayer ep = ((CraftPlayer) p).getHandle();
+  PacketPlayOutOpenWindow packet = new PacketPlayOutOpenWindow(
+    ep.activeContainer.windowId, 
+    getContainerType(numberOfItems), 
+    new ChatMessage(p.getOpenInventory().getTitle())
+  );
+  ep.playerConnection.sendPacket(packet);
+  ep.updateInventory(ep.activeContainer);
+}
+
+public ItemStack getHead(Player p) { //I recommend to build a chache with Heads of 
+  ItemStack playerhead = new ItemStack(Material.PLAYER_HEAD);//every Player currently on the server.
+  SkullMeta playerheadmeta = (SkullMeta) playerhead.getItemMeta();
+  playerheadmeta.setOwningPlayer(Bukkit.getOfflinePlayer(p.getUniqueId()));
+  playerheadmeta.setDisplayName(p.getName());
+  playerhead.setItemMeta(playerheadmeta);
+  return playerhead;
+}
 ```
+The Helper Functions done, we can finally start with the first layer.
+```java
+ClickableItem ci = new ClickableItem(Material.CLOCK, "loading...") {
+  @Override
+  public void onLoad(Player p) {
+    risizeToFitAllItems(p, Bukkit.getOnlinePlayers().size());
+
+    p.getOpenInventory().getItem(this.getSlot()).setType(Material.VOID_AIR);
+    int counter = this.getSlot();
+    for (Player all : Bukkit.getOnlinePlayers()) {
+      ClickableItem ci = new ClickableItem(getHead(all)) {
+      @Override
+        public void click(Player p, Boolean shift) {
+          Player clicked = Bukkit.getPlayer(getItem().getItemMeta().getDisplayName());
+          Page.getInstanceManager().getByName("Player options").get().open(p, clicked);
+        }
+      };
+      ci.setSlot(counter);
+      p.getOpenInventory().setItem(counter, ci.getItem());
+
+      Page page = Page.getInstanceManager().getByName("Player options").get();
+      page.addClickListener(ci);
+
+      counter += 1;
+    }
+  }
+};
+
+new Page("My GUI", ci).addToInstanceManager();
+```
+
 
 
 \

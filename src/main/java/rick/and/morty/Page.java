@@ -1,4 +1,5 @@
-package minecraftserver.gui;
+//package minecraftserver.gui;
+package rick.and.morty;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -6,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
-import minecraftserver.adminTools.Admins;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -15,7 +15,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import utilities.BasicFunctions;
 
 /**
  *
@@ -132,7 +131,7 @@ public class Page {
     }
 
     private static void onInventoryClick(InventoryClickEvent e) {
-        if (!((e.getWhoClicked() instanceof Player) && Admins.isAdmin(e.getWhoClicked().getUniqueId()))) {
+        if (!((e.getWhoClicked() instanceof Player))) {
             return;
         }
         Page p;
@@ -171,7 +170,15 @@ public class Page {
      * @param p the Player who wants to see the Inventory.
      */
     public void open(Player p) {
-        open(p, BasicFunctions.getNeededRows(items.length));
+        open(p, calculateNeededRows(items.length));
+    }
+
+    private static int calculateNeededRows(Integer itemCount) {
+        int neededRows = itemCount / 9;
+        if (itemCount % 9 != 0) {
+            neededRows = ((int) itemCount / 9) + 1;
+        }
+        return neededRows;
     }
 
     /**
@@ -202,7 +209,7 @@ public class Page {
      */
     public void open(Player p, Object... information) {
         this.information.put(p.getUniqueId(), information);
-        Inventory inv = Bukkit.createInventory(null, 9 * BasicFunctions.getNeededRows(items.length), name);
+        Inventory inv = Bukkit.createInventory(null, 9 * calculateNeededRows(items.length), name);
         p.openInventory(inv);
 
         int slotCounter = 0;

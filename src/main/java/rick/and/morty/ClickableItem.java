@@ -1,7 +1,6 @@
-package minecraftserver.gui;
+package rick.and.morty;
 
 import java.util.Arrays;
-import minecraftserver.PhilippsPlugin;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -12,7 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class ClickableItem extends ClickEvents {
 
     private static Integer lastID = 0; //the unique id for this item...
-    private static final NamespacedKey ID_KEY = new NamespacedKey(PhilippsPlugin.instance, "guiID");
+    private static final NamespacedKey ID_KEY = new NamespacedKey("fda", "guiID");
     
     private final ItemStack item;
     private Integer slot = null;

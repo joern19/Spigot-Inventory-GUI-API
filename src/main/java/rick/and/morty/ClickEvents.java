@@ -1,4 +1,4 @@
-package minecraftserver.gui;
+package rick.and.morty;
 
 import org.bukkit.entity.Player;
 

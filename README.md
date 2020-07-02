@@ -2,17 +2,31 @@
 Create an Inventory GUI simply and fast.
 
 # Installation
-### Register Event Manager
-Add the following to the onEnable function.\
-It will Register an Event which will be responsible when you click an clickable Item.
+### Add the Depedency to your pom.xml in your maven Project
+```xml
+<dependency>
+  <groupId>rick.and.morty</groupId>
+  <artifactId>Spigot-Inventory-GUI-API</artifactId>
+  <version>1.2-SNAPSHOT</version>
+</dependency>
 ```
-Page.addEventListener(your_listener, this);
-```
+Also do not forget to build your jar with dependencies.
+### Run the Initializer onLoad
+Add the following line to your onEnable function.
 
-# Examples
-### Simple Example
+It will Register an Event which will be responsible when you click an clickable Item\
+and it will create an NamespacedKey. But you do not have to worry about that.
 ```
-ClickableItem ci = new ClickableItem(Material.IRON_BARS, "Add Iron to your Inventory.") {
+Initializer.start(<your_listener>, this);
+```
+\
+\
+\
+_
+# Examples
+### 1. Simple Example
+```java
+ClickableItem ci = new ClickableItem(Material.IRON_INGOT, "Add Iron to your Inventory.") {
   @Override
   public void click(Player p, Boolean shift) {
     int amount = shift ? 1 : 64;
@@ -29,29 +43,29 @@ This ClickableItem has the Title "Add Iron to your Inventory." and looks like an
 
 <insert Picture>
  
-Additinally we override the Function ```click(Player p, Boolean shift);``` which is called when the Item is clicked ignoring if it is a left or right click. The function just gives us an Iron Ingot and when we press shift while we press the Item, it will give us 64 Iron Ingots.
+Additionally we override the Function ```click(Player p, Boolean shift);``` which is called when the Item is clicked ignoring if it is a left or right click. The function just gives us an Iron Ingot and when we press shift while we press the Item, it will give us 64 Iron Ingots.
 
-The Last thing we do, is we add the ClickableItem to a new Page called "my page" and add it to the Instance Manager so it can be accessed by the Function wich we registerd in the Installtion.\
+The Last thing we do, is we add the ClickableItem to a new Page called "my page" and add it to the Instance Manager so it can be accessed by the function which we registered in the Installation.\
 If we do not add the Page to the Instance Manager, nothing will happen when we click the Item.
 
 Finally we can open the Page from everywhere with\
 ```Page.getInstanceManager().getByName("my page").get().open(player);```\
 Because the Function getByName(String name); in the Instance Manager returns an Optional<Page> we need to get() the Page from it and then can show it to the Player with the Function open(Player p);
 
-### Update Info Onload
+### 2. Update Info Onload
 Sometimes we need to set Information right after opening the Page, for example: We want to allow a Player to change a Gamerule and show the current state of it.
-```
-new ClickableItem(Material.SUNFLOWERE, "loading...") {
+```java
+new ClickableItem(Material.SUNFLOWER, "loading...") {
   @Override
-  void click(Player p, Boolean shift) {
+  public void click(Player p, Boolean shift) {
     World w = p.getWorld();
-    Boolean currentState = (Boolean) w.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE);
+    Boolean currentState = w.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE);
     w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, !currentState);
     onLoad(p);
   }
 
   @Override
-  void onLoad(Player p) {
+  public void onLoad(Player p) {
     ItemMeta itemMeta = this.getItem().getItemMeta();
     Boolean currentState = p.getWorld().getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE);
     String newTitle = "DO_DAYLIGHT_CYCLE is " + (currentState ? "on" : "off");
@@ -60,13 +74,45 @@ new ClickableItem(Material.SUNFLOWERE, "loading...") {
   }
 }
 ```
-The Title "loading..." should be not visible because we instantly replace it in the onLoad function.\
-When the Item is loaded in the Inventory, we get The ItemMeta of the ClickableItem which contains an Important ID so we need to copy it. We than replace the Title and 
+The Title "loading..." should be not visible because we instantly replace it in the onLoad function.
+
+When the Item is loaded in the Inventory, we get The ItemMeta of the ClickableItem which contains an Important ID so we need to copy it. We than replace the Title with the "DO_DAYLIGHT_CYCLE is " and then weather it is enabled or not. We than update the ItemStack in the Inventory of the Player with the new MetaData but the real ClickableItem doesnt get changed!
+
+If a Player now hovers over the Item he would see the new Title and when he clicks it, the Gamerule get flipped and the onLoad Function is called so the Item gets updated with the new Title.
+
+### 3. Information pass through
+If we have multiple Layers of Pages where we can select for example a Player and after clicking him we can do something with that Player on a new Page. Now the new Page needs to know which Player was selected, so we do not need a Page for every single Player which would be very laggy.
+
+We can actually open a Page with custom Information provided. The Information can than be optionally accessed by the the rightClick, leftClick and click function.
+
+First we create a Page which contains all Player options (the 2. layer).
+```java
+ClickableItem teleport = new ClickableItem(Material.ENDER_PEARL, "Teleport you to him/her") {
+  @Override
+  public void click(Player p, Boolean shift, Object[] infos) {
+    if (infos.length >= 1 && infos[0] instanceof Player) {
+      Player clicked = (Player) infos[0];
+      p.teleport(clicked);
+    } else {
+      p.sendMessage("Error please try again.");
+    }
+  }
+};
+        
+new Page("Player options", teleport).addToInstanceManager();
+
+```
+You can see the third argument of the function click which is an Object array. We could pass any Information in it but here we will pass the Player selected in the first Inventory(wich is not implemented yet). So in the if statement we validate the Information and check if we can work with it. If everything is ok, we get the Player who was selected in the first Inventory: "clicked". After that we Teleport ourselves to that Player.
+
+Now lets see how we Implement the first Layer.
+```java
+ffffff
+```
 
 
-#
-#
-#
-
+\
+\
+\
+_
 ## License
 [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/)

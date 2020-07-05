@@ -6,7 +6,7 @@
 
   <groupId>rick.and.morty</groupId>
   <artifactId>Spigot-Inventory-GUI-API</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
 
   <name>Spigot-Inventory-GUI-API</name>
   <!-- FIXME change it to the project's website -->

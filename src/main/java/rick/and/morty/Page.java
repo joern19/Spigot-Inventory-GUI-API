@@ -9,12 +9,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
@@ -22,33 +19,16 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class Page {
 
-    private static boolean eventRegisterd = false;
     private static final InstanceManager instanceManager = new InstanceManager();
 
     private final String name;
     private final ClickableItem[] items;
     
-    private LinkedList<ClickableItem> tmpItems = new LinkedList<>(); //thinking about removing this
-    private Map<UUID, Object[]> information = new HashMap<>(); // and this.
+    private final LinkedList<ClickableItem> tmpItems = new LinkedList<>(); //cleanup needed on inventory close
+    private final Map<UUID, Object[]> information = new HashMap<>(); //cleanup needed on player leave
 
     public Object[] getInformationFor(UUID playerUUID) {
         return information.get(playerUUID);
-    }
-
-    /**
-     * This has to be done only once but is very Important to work properly.
-     *
-     * @param listener
-     * @param plugin
-     */
-    public static synchronized void addEventListener(Listener listener, JavaPlugin plugin) {
-        if (eventRegisterd) {
-            return;
-        }
-        eventRegisterd = true;
-        Bukkit.getPluginManager().registerEvent(InventoryClickEvent.class, listener, EventPriority.HIGH, (ll, event) -> {
-            onInventoryClick((InventoryClickEvent) event);
-        }, plugin);
     }
 
     private ClickableItem getItemById(ItemStack is) {
@@ -129,8 +109,8 @@ public class Page {
     public static InstanceManager getInstanceManager() {
         return instanceManager;
     }
-
-    private static void onInventoryClick(InventoryClickEvent e) {
+    
+    protected static void onInventoryClick(InventoryClickEvent e) {
         if (!((e.getWhoClicked() instanceof Player))) {
             return;
         }

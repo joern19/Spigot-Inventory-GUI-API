@@ -1,21 +1,23 @@
 package rick.and.morty;
 
 import java.util.Arrays;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 public class ClickableItem extends ClickEvents {
 
     private static Integer lastID = 0; //the unique id for this item...
-    private static final NamespacedKey ID_KEY = new NamespacedKey("fda", "guiID");
+    protected static NamespacedKey ID_KEY;
     
     private final ItemStack item;
     private Integer slot = null;
-
+    
     /**
      * Create an Clickable Item with an ItemStack already ready for use.
      * @param item 

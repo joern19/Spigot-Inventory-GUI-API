@@ -41,7 +41,7 @@ new Page("my page", ci).addToInstanceManager();
 The first thing we did here, was to create an ClickableItem.\
 This ClickableItem has the Title "Add Iron to your Inventory." and looks like an Iron Ingot.
 
-<insert Picture>
+![alt text](https://github.com/joern19/Spigot-Inventory-GUI-API/blob/master/Screenshot0.png?raw=true)
  
 Additionally we override the Function ```click(Player p, Boolean shift);``` which is called when the Item is clicked ignoring if it is a left or right click. The function just gives us an Iron Ingot and when we press shift while we press the Item, it will give us 64 Iron Ingots.
 
